@@ -1,12 +1,34 @@
 {% extends "base.html" %}
 
 {% block content %}
+<script type="text/javascript">
+    function set_openid(openid,pr) {
+        u=openid.search('<username>');
+        //如果找到username,则返回<username>开始的下标，反之返回-1
+        if (u != -1){
+            //openid requres username
+            //prompt方法设置弹窗，取消返回null，确定时返回弹窗中输入的文本
+            user = prompt('Enter your' + pr + ' username:');
+            openid = openid.substr(0,u) + user;
+        }
+        //获取模版中的所有forms元素，将openid写入input框
+        form=document.forms['login'];
+        form.elements['openid'].value = openid;
+    }
+</script>
+
 <h1>Sign In</h1>
 <form action="" method="post" name="login">
     {{form.hidden_tag()}}
     <p>
-        Please enter your OpenID: <br>
+        Please enter your OpenID,or select one of the providers below: <br>
         {{form.openid(size=80)}} <br>
+        {% for error in form.openid.errors %}
+        <span style="color: red">[{{error}}]</span>
+        {% endfor %} <br>
+        |{% for pr in providers %}
+            <a href="javascript:set_openid('{{pr.url}}','{{pr.name}}');">{{pr.name}}</a>|
+        {% endfor %}
     </p>
     <p>{{form.remember_me}} Remember Me</p>
     <p><input type="submit" value="Sign In"> </p>
